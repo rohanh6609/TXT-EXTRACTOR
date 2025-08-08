@@ -172,12 +172,19 @@ async def pw_login(app, message, token):
             for i in range(1,rr):
                 params = {'page': str(i)}
                 response3 = requests.get(f"https://api.penpencil.co/v3/batches/{raw_text3}/subject/{id}/topics", params=params, headers=headers).json()["data"]
-#                for data in response3:
-                with open(f"mm.txt", 'a') as f:
-                    f.write(f"{response3}")   
-            
+                
+          # Always use /tmp/ for Heroku temporary storage
+          tmp_file_path = "/tmp/mm.txt"
 
-            await app.send_document(message.chat.id, document=f"mm.txt")
+with open(tmp_file_path, "a", encoding="utf-8") as f:
+    f.write(f"{response3}\n")
+
+# Ensure file is flushed and closed before sending
+await app.send_document(
+    chat_id=message.chat.id,
+    document=tmp_file_path
+)
+
     except Exception as e:
         await message.reply_text(str(e))
 
